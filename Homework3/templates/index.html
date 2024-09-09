@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LLama Chat</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f4f4f9;
+      }
+
+      .chat-container {
+        width: 400px;
+        max-height: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .chat-box {
+        padding: 10px;
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+
+      .message {
+        margin-bottom: 10px;
+      }
+
+      .user-message {
+        background-color: #e2ffc7;
+        padding: 8px;
+        border-radius: 8px;
+        max-width: 70%;
+        align-self: flex-end;
+      }
+
+      .bot-message {
+        background-color: #f1f0f0;
+        padding: 8px;
+        border-radius: 8px;
+        max-width: 70%;
+        align-self: flex-start;
+      }
+
+      .thinking-message {
+        color: gray;
+        font-style: italic;
+      }
+
+      .input-container {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+        background-color: #f9f9f9;
+      }
+
+      input[type="text"] {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        font-size: 14px;
+      }
+
+      button {
+        padding: 8px 16px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 20px;
+        font-size: 14px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-box" id="chat-box">
+        <!-- Messages will appear here -->
+        <div class="message bot-message">Hello! How can I help you today?</div>
+      </div>
+      <div class="input-container">
+        <input
+          type="text"
+          id="message-input"
+          placeholder="Type your message..."
+        />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <script>
+      async function sendMessage() {
+        const messageInput = document.getElementById("message-input");
+        const chatBox = document.getElementById("chat-box");
+        const userMessage = messageInput.value;
+
+        if (userMessage.trim() === "") return;
+
+        const userMessageDiv = document.createElement("div");
+        userMessageDiv.classList.add("message", "user-message");
+        userMessageDiv.textContent = userMessage;
+        chatBox.appendChild(userMessageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        messageInput.value = "";
+
+        // Display "bot is thinking..." message
+        const thinkingMessage = document.createElement("div");
+        thinkingMessage.classList.add("message", "thinking-message");
+        thinkingMessage.setAttribute("id", "thinking");
+        thinkingMessage.innerText = "LLama🦙 is thinking...";
+        chatBox.appendChild(thinkingMessage);
+
+        // Scroll chat to the bottom
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Send the message to the Flask backend
+        const response = await fetch("/get-response", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: userMessage }),
+        });
+
+        const result = await response.json();
+        const botMessage = result.reply;
+
+        // Display the bot's response
+        const botMessageDiv = document.createElement("div");
+        botMessageDiv.classList.add("message", "bot-message");
+        botMessageDiv.textContent = botMessage;
+        chatBox.appendChild(botMessageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    </script>
+  </body>
+</html>
