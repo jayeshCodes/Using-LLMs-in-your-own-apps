@@ -23,7 +23,7 @@ def get_current_weather(location, date):  # taken from notebook 1
 def talk_about_weather(location, date):
     info = get_current_weather(location, date)
 
-    # init payload for response
+    # init payload for response, using opensource llama 3.1
     payload = {
         "model": "llama3.1",
         "prompt": f"talk about the weather info which i am about to provide: {info}, dont say anything like - heres the information you provided, or based on the information you provided and so on. be as fun as possible",
@@ -101,12 +101,6 @@ def get_response():
     user_message = data['message']
     location = data.get('location')
     date = data.get('date')
-
-    # if(location!='' and date!=''):
-    #     bot_reply=talk_about_weather(location, date)
-
-    # else:
-    # Get bot reply
     bot_reply = llama_response(user_message, location, date)
 
     if isinstance(bot_reply, dict) and 'error' in bot_reply:
