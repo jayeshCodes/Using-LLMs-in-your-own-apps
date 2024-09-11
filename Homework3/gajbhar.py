@@ -1,3 +1,4 @@
+"""imports"""
 from flask import Flask, render_template, request, jsonify
 import requests
 import json
@@ -21,6 +22,7 @@ def get_current_weather(location, date):  # taken from notebook 1
 
 
 def talk_about_weather(location, date):
+    """get weather info and talk about the weather in a fun way"""
     info = get_current_weather(location, date)
 
     # init payload for response, using opensource llama 3.1
@@ -51,6 +53,7 @@ def manual_input():
 
 
 def llama_response(prompt='', location=None, date=None):
+    """getting the opensource llama 3.1 api response and sending it to the calling function"""
     payload = {
         "model": "llama3.1",
         "prompt": prompt,
@@ -97,6 +100,7 @@ def llama_response(prompt='', location=None, date=None):
 
 @app.route('/get-response', methods=['POST'])
 def get_response():
+    """route to get response from llama api and post it to the frontend"""
     data = request.get_json()
     user_message = data['message']
     location = data.get('location')
@@ -111,8 +115,10 @@ def get_response():
 
 @app.route("/")
 def index():
+    """route to serve the HTML interface"""
     return render_template('index.html')  # Serve the HTML interface
 
 
 if __name__ == '__main__':
+    """run the app"""
     app.run(debug=True)
