@@ -88,6 +88,14 @@
       button:hover {
         background-color: #0056b3;
       }
+
+      .input-field {
+        display: none;
+        margin: 10px 0;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+      }
     </style>
   </head>
   <body>
@@ -104,9 +112,34 @@
         />
         <button onclick="sendMessage()">Send</button>
       </div>
+
+      <!-- Dynamic Inputs for Location and Date -->
+      <div id="extra-inputs">
+        <input
+          type="text"
+          id="location-input"
+          class="input-field"
+          placeholder="Please enter the location..."
+        />
+        <input
+          type="text"
+          id="date-input"
+          class="input-field"
+          placeholder="Please enter the date..."
+        />
+        <button
+          id="submit-extra-inputs"
+          class="input-field"
+          onclick="submitExtraInputs()"
+        >
+          Submit
+        </button>
+      </div>
     </div>
 
     <script>
+      let awaitingExtraInput = false; // Flag to track if we're waiting for extra input
+
       async function sendMessage() {
         const messageInput = document.getElementById("message-input");
         const chatBox = document.getElementById("chat-box");
@@ -144,12 +177,93 @@
         const result = await response.json();
         const botMessage = result.reply;
 
+        // Check if the bot requests extra input (location or date)
+        if (
+          botMessage.includes(
+            "Unable to extract location/date. Please provide them manually."
+          )
+        ) {
+          // Show the input fields for extra information
+          document.getElementById("location-input").style.display = "block";
+          document.getElementById("date-input").style.display = "block";
+          document.getElementById("submit-extra-inputs").style.display =
+            "block";
+          awaitingExtraInput = true;
+        }
+
+        // Remove "LLama🦙 is thinking..." message
+        document.getElementById("thinking").remove();
+
         // Display the bot's response
         const botMessageDiv = document.createElement("div");
         botMessageDiv.classList.add("message", "bot-message");
         botMessageDiv.textContent = botMessage;
         chatBox.appendChild(botMessageDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      async function submitExtraInputs() {
+        if (!awaitingExtraInput) return;
+
+        const locationInput = document.getElementById("location-input").value;
+        const dateInput = document.getElementById("date-input").value;
+
+        if (locationInput.trim() === "" || dateInput.trim() === "") {
+          alert("Please enter both location and date.");
+          return;
+        }
+
+        // Send the extra inputs to the backend to manually set location and date
+        const response = await fetch("/get-manual-input", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            location: locationInput,
+            date: dateInput,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+          const location = result.location;
+          const date = result.date;
+
+          // Now send this info back to the llama_response function for further processing
+          const chatResponse = await fetch("/get-response", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: "manual input",
+              location: location,
+              date: date,
+            }),
+          });
+
+          const chatResult = await chatResponse.json();
+          const botMessage = chatResult.reply;
+
+          const chatBox = document.getElementById("chat-box");
+
+          // Display the bot's response after getting extra inputs
+          const botMessageDiv = document.createElement("div");
+          botMessageDiv.classList.add("message", "bot-message");
+          botMessageDiv.textContent = botMessage;
+          chatBox.appendChild(botMessageDiv);
+          chatBox.scrollTop = chatBox.scrollHeight;
+
+          // Hide extra inputs after submission
+          document.getElementById("location-input").style.display = "none";
+          document.getElementById("date-input").style.display = "none";
+          document.getElementById("submit-extra-inputs").style.display = "none";
+          awaitingExtraInput = false;
+        } else {
+          alert(result.error);
+        }
       }
     </script>
   </body>
