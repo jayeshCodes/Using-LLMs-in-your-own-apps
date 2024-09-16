@@ -1,0 +1,12 @@
+DSC 595-002   Week-4        Homework-4     (50 points, due next Wednesday 9/18 before class)
+
+Please write an app with working codes to use: 
+1) Streamlit; 
+2) Ollama local API; 
+3) open source LLM llama3.1 
+4) have a function calling tool and real or demo function to get response.
+Add adequate #comments    
+Please only upload your python code file “yourlastname.py” 
+ 
+*Make sure you run and test your code “streamlit run yourcode.py”
+
