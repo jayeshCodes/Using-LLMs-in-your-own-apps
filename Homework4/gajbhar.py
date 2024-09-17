@@ -1,3 +1,4 @@
+"""imports"""
 import streamlit as st
 import requests
 import json
@@ -5,14 +6,10 @@ import re
 from dotenv import load_dotenv
 import os
 import pandas as pd
-from googleapiclient.discovery import build
-from googlesearch import search
 from bs4 import BeautifulSoup
 import wikipedia
 
-
 load_dotenv()
-
 
 def get_current_weather(location):  # taken from notebook 1
     """Get the current weather in a given location and date"""
@@ -27,8 +24,8 @@ def get_current_weather(location):  # taken from notebook 1
         print("Failed to retrieve data")
     return json.dumps(weather_info)
 
-
 def get_location_info(location):
+    """gets location information from wikipedia search"""
     try:
         # Search for the page
         search_results = wikipedia.search(location)
@@ -76,8 +73,8 @@ def get_location_info(location):
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
-
 def get_location_images(location, num_images=3):
+    """gets top 3 images from wikipedia page"""
     try:
         # Step 1: Search for the Wikipedia page related to the location
         search_url = "https://en.wikipedia.org/w/api.php"
@@ -147,8 +144,8 @@ def get_location_images(location, num_images=3):
         print(f"An error occurred: {e}")
         return []
 
-
 def get_coordinates(location):
+    """gets location coordinates from openweather api"""
     url = f'http://api.openweathermap.org/geo/1.0/direct?q={
         location}&limit=5&appid={os.getenv("OPENWEATHER_API_KEY")}'
 
@@ -173,8 +170,8 @@ def get_coordinates(location):
         print(f'Error: {e}')
         return None
 
-
 def chat_with_llm(prompt, model="llama3.1"):
+    """function to invoke local ollama server"""
     url = "http://localhost:11434/api/generate"
 
     data = {
@@ -230,7 +227,7 @@ def chat_with_llm(prompt, model="llama3.1"):
         return f"Error: {response.status_code} - {response.text}"
 
 
-st.title("lLama with Location capabilities")
+st.title("Llama with Location capabilities (real time info)")
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -242,7 +239,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # React to user input
-if prompt := st.chat_input("What is your message?"):
+if prompt := st.chat_input("Try - tell me a few facts about Raleigh."):
     # Display user message in chat message container
     st.chat_message("user").markdown(prompt)
     # Add user message to chat history
