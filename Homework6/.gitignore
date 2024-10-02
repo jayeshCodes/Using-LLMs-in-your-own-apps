@@ -3,3 +3,4 @@ database/
 __pycache__/
 knowledge_base/
 undergraduate_handbook.pdf
+.DS_Store
