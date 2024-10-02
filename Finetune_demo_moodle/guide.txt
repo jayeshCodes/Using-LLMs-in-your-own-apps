@@ -1,0 +1,55 @@
+notes:
+
+1) https://openai.com/blog/gpt-3-5-turbo-fine-tuning-and-api-updates
+2) https://platform.openai.com/docs/guides/fine-tuning
+
+
+At a high level, fine-tuning involves the following steps:
+
+Prepare and upload training data
+
+Train a new fine-tuned model
+
+Evaluate results and go back to step 1 if needed
+
+Use your fine-tuned model
+
+
+
+1. Prepare the training input data
+
+  1) Prepare a CSV file
+	1-1) two cols, with headers of "question,answer"
+	1-2) save as "dataset.csv"
+  
+  2) convert the CSV file to JSON Lines format (*.jsonl)
+	using csv2jasonl.py
+
+	modify the DEFAULT_SYSTEM_PROMPT
+
+  3) the output is "train.jsonl"
+
+
+
+2. Upload the train.jsonl dataset
+  
+  1) run upload.py
+  2) do remember the "file_id" ***********  (write it down)
+
+3.  Create a fine-tuning job
+
+  1) modify the training.py file, using the above file _id as training_file="file-??????????"
+
+  2) run  training.py
+
+
+4. After the fine-tuning is done, you will receive an email with the NEW MODEL id
+
+Or check it in your account: https://platform.openai.com/finetune/
+
+5. OR Use or check the fine-tuned model:
+  1) get new model name         model="ft:gpt-3.5-turbo-0613:personal::????????",
+
+  2) modify and run check.py
+
+6. Run and test your new model:
